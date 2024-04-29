@@ -70,21 +70,21 @@ const Index = () => {
   };
 
   return (
-    <Box p={5}>
-      <Heading mb={4}>Todo App</Heading>
-      <Flex mb={4}>
+    <Box p={8}>
+      <Heading mb={6}>Todo App</Heading>
+      <Flex mb={6} direction={{ base: "column", md: "row" }} align="center">
         <Input placeholder="Add a new task" value={input} onChange={(e) => setInput(e.target.value)} />
         {editIndex === -1 ? (
-          <Button onClick={handleAddTask} ml={2} colorScheme="blue"><FaPlus /></Button>
+          <Button onClick={handleAddTask} ml={2} colorScheme="blue" width={{ base: "full", md: "auto" }}><FaPlus /></Button>
         ) : (
-          <Button onClick={handleSaveEdit} ml={2} colorScheme="green"><FaEdit /></Button>
+          <Button onClick={handleSaveEdit} ml={2} colorScheme="green" width={{ base: "full", md: "auto" }}><FaEdit /></Button>
         )}
       </Flex>
-      <List spacing={3}>
+      <List spacing={4}>
         {tasks.map((task, index) => (
-          <ListItem key={index} d="flex" alignItems="center">
+          <ListItem key={index} display={{ base: "block", md: "flex" }} alignItems="center">
             <Checkbox isChecked={task.completed} onChange={() => handleCompleteTask(index)} mr={2} />
-            <Text as={task.completed ? 'del' : undefined} flex="1">{task.text}</Text>
+            <Text fontSize="lg" as={task.completed ? 'del' : undefined} flex="1" mb={{ base: 2, md: 0 }}>{task.text}</Text>
             <Button onClick={() => handleEditTask(index)} colorScheme="yellow" size="sm" mr={2}><FaEdit /></Button>
             <Button onClick={() => handleDeleteTask(index)} colorScheme="red" size="sm"><FaTrash /></Button>
           </ListItem>
