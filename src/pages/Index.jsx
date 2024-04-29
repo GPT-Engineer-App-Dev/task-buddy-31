@@ -48,13 +48,10 @@ const Index = () => {
     setEditIndex(index);
   };
 
-  const handleSaveEdit = () => {
-    const newTasks = tasks.map((task, i) => {
-      if (i === editIndex) {
-        return { ...task, text: input };
-      }
-      return task;
-    });
+  const handleSaveEdit = async () => {
+    const updatedTask = { ...tasks[editIndex], text: input };
+    await client.set(`task:${tasks[editIndex].createdAt}`, updatedTask, true);
+    const newTasks = tasks.map((task, i) => (i === editIndex ? updatedTask : task));
     setTasks(newTasks);
     setInput('');
     setEditIndex(-1);
