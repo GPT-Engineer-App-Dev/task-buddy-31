@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Box, Button, Input, List, ListItem, Checkbox, Text, Flex, Heading } from '@chakra-ui/react';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import { client } from 'lib/crud';
@@ -48,6 +48,18 @@ const Index = () => {
     setEditIndex(index);
   };
 
+  const generateSuggestions = (tasks) => {
+    const unfinishedTasks = tasks.filter(task => !task.completed);
+    const frequentTasks = tasks.reduce((acc, task) => {
+      acc[task.text] = (acc[task.text] || 0) + 1;
+      return acc;
+    }, {});
+    const sortedFrequentTasks = Object.entries(frequentTasks).sort((a, b) => b[1] - a[1]);
+    return [...unfinishedTasks, ...sortedFrequentTasks.slice(0, 3).map(task => ({ text: task[0], completed: false }))];
+  };
+
+  const suggestions = useMemo(() => generateSuggestions(tasks), [tasks]);
+
   const handleSaveEdit = async () => {
     const updatedTask = { ...tasks[editIndex], text: input };
     await client.set(`task:${tasks[editIndex].createdAt}`, updatedTask, true);
@@ -78,6 +90,17 @@ const Index = () => {
           </ListItem>
         ))}
       </List>
+      <Box mt={6}>
+        <Heading size="md" mb={2}>Suggestions</Heading>
+        <List spacing={3}>
+          {suggestions.map((suggestion, index) => (
+            <ListItem key={index}>
+              <Text>{suggestion.text}</Text>
+              <Button onClick={() => setInput(suggestion.text)} colorScheme="teal" size="sm" ml={2}>Add</Button>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
     </Box>
   );
 };
