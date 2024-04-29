@@ -1,32 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Button, Input, List, ListItem, Checkbox, Text, Flex, Heading } from '@chakra-ui/react';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { client } from 'lib/crud';
 
 const Index = () => {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState('');
   const [editIndex, setEditIndex] = useState(-1);
 
-  const handleAddTask = () => {
+  useEffect(() => {
+    const loadTasks = async () => {
+      const loadedTasks = await client.getWithPrefix('task:');
+      if (loadedTasks) {
+        setTasks(loadedTasks.map(item => item.value));
+      }
+    };
+    loadTasks();
+  }, []);
+
+  const handleAddTask = async () => {
     if (input.trim() !== '') {
-      const newTasks = [...tasks, { text: input, completed: false }];
+      const newTask = { text: input, completed: false, createdAt: new Date().toISOString() };
+      await client.set(`task:${newTask.createdAt}`, newTask);
+      const newTasks = [...tasks, newTask];
       setTasks(newTasks);
       setInput('');
     }
   };
 
-  const handleDeleteTask = (index) => {
+  const handleDeleteTask = async (index) => {
+    const key = `task:${tasks[index].createdAt}`;
+    await client.delete(key);
     const newTasks = tasks.filter((_, i) => i !== index);
     setTasks(newTasks);
   };
 
-  const handleCompleteTask = (index) => {
-    const newTasks = tasks.map((task, i) => {
-      if (i === index) {
-        return { ...task, completed: !task.completed };
-      }
-      return task;
-    });
+  const handleCompleteTask = async (index) => {
+    const task = tasks[index];
+    const updatedTask = { ...task, completed: !task.completed };
+    await client.set(`task:${task.createdAt}`, updatedTask);
+    const newTasks = tasks.map((t, i) => (i === index ? updatedTask : t));
     setTasks(newTasks);
   };
 
