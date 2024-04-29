@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Box, Button, Input, List, ListItem, Checkbox, Text, Flex, Heading } from '@chakra-ui/react';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import { client } from 'lib/crud';
@@ -7,6 +7,7 @@ const Index = () => {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState('');
   const [editIndex, setEditIndex] = useState(-1);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -46,6 +47,7 @@ const Index = () => {
   const handleEditTask = (index) => {
     setInput(tasks[index].text);
     setEditIndex(index);
+    inputRef.current.focus();
   };
 
   const generateSuggestions = (tasks) => {
@@ -73,7 +75,7 @@ const Index = () => {
     <Box p={8}>
       <Heading mb={6}>Todo App</Heading>
       <Flex mb={6} direction={{ base: "column", md: "row" }} align="center">
-        <Input placeholder="Add a new task" value={input} onChange={(e) => setInput(e.target.value)} />
+        <Input ref={inputRef} placeholder="Add a new task" value={input} onChange={(e) => setInput(e.target.value)} />
         {editIndex === -1 ? (
           <Button onClick={handleAddTask} ml={2} colorScheme="blue" width={{ base: "full", md: "auto" }}><FaPlus /></Button>
         ) : (
